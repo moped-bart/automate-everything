@@ -5,9 +5,9 @@ library(tidyverse)
 library(DT)
 library(wordcloud)
 
-ui <- fluidPage(theme = shinytheme("simplex"),
+ui <- fluidPage(theme = shinytheme("sandstone"),
 
-  titlePanel("AdWords N-gram Analysis"),
+  titlePanel("N-gram Analysis for AdWords"),
   # custom css
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "bootstrap.css")
@@ -83,18 +83,18 @@ server <- function(input, output) {
       tolower() %>%
       stringr::str_replace_all(" ", "")
     DT::datatable(head(df %>%
-          dplyr::select(searchterm, impr., clicks, ctr, cost, conversions) %>%
+          dplyr::select(searchterm, impr., clicks, ctr, cost, conversions, conversionvalue) %>%
           tidytext::unnest_tokens(ngram, searchterm, token="ngrams", n=input$ngramCount) %>%
           dplyr::group_by(ngram) %>%
           dplyr::summarize(
             sum.impr = round(sum(impr.), 2),
-            avg.impr = round(mean(impr.), 2),
             sum.clicks = round(sum(clicks), 2),
-            avg.clicks = round(mean(clicks), 2),
-            avg.ctr = round(avg.clicks / avg.impr, 2),
+            avg.ctr = round((sum.clicks / sum.impr)*100, 2),
             avg.cpc = round(sum(cost) / sum(clicks), 2),
-            sum.convr = round(sum(conversions), 2),
-            avg.costperconv = round(sum.convr / sum(cost), 2)
+            sum.cost = round(sum(cost), 2),
+            sum.conv = round(sum(conversions), 2),
+            sum.convvalue = round(sum(conversionvalue), 2),
+            avg.roas = round(sum.convvalue / sum(cost), 2)
           ) %>%
           dplyr::arrange(desc(sum.clicks)), 100),
         class = "stripe hover compact order-column",
