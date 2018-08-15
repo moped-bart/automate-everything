@@ -83,7 +83,7 @@ server <- function(input, output) {
       tolower() %>%
       stringr::str_replace_all(" ", "")
     DT::datatable(head(df %>%
-          dplyr::select(searchterm, impr., clicks, ctr, cost, conversions, conversionvalue) %>%
+          dplyr::select(searchterm, impr., clicks, cost, conversions, conversionvalue) %>%
           tidytext::unnest_tokens(ngram, searchterm, token="ngrams", n=input$ngramCount) %>%
           dplyr::group_by(ngram) %>%
           dplyr::summarize(
